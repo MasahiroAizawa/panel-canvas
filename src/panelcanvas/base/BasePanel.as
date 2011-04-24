@@ -18,10 +18,13 @@ package panelcanvas.base
 	 */
 	public class BasePanel extends TitleWindow
 	{
-		public function BasePanel()
+		public function BasePanel(minSiseX:Number = 50, minSizeY:Number = 70)
 		{
 			super();
 			isPopUp = true;
+
+			MIN_SIZE_X = minSiseX;
+			MIN_SIZE_Y = minSizeY;
 
 			this.addEventListener(FlexEvent.CREATION_COMPLETE, init);
 			this.addEventListener(MouseEvent.MOUSE_DOWN, componentDisplayTop);
@@ -29,10 +32,8 @@ package panelcanvas.base
 			this.addEventListener(MouseEvent.MOUSE_DOWN, resizePanel);
 		}
 
-		private static const MIN_SIZE_X:Number = 50;
-		private static const MIN_SIZE_Y:Number = 70;
-
-		private var beforeResizeFramePoint:Point;
+		private var MIN_SIZE_X:Number = 50;
+		private var MIN_SIZE_Y:Number = 70;
 
 		/**
 		 * initialize this panel<br>
@@ -50,7 +51,7 @@ package panelcanvas.base
 		private function controlDragging(mEvent:MouseEvent):void{
 			if(isPanelFrame(mEvent)){
 				isPopUp = false;
-				titleBar.addEventListener(MouseEvent.MOUSE_DOWN, resetStatus);
+				titleBar.addEventListener(MouseEvent.MOUSE_DOWN, resetStatus, false, EventPriority.DEFAULT - 1);
 			}
 			function resetStatus(event:MouseEvent):void{
 				isPopUp = true;
@@ -82,8 +83,6 @@ package panelcanvas.base
 		private function resizePanel(mEvent:MouseEvent):void{
 			if(!isPanelFrame(mEvent)) return;
 
-			beforeResizeFramePoint = new Point(this.width, this.height);
-
 			addEventListener(MouseEvent.MOUSE_UP, resizePanelComplete);
 		}
 
@@ -114,6 +113,9 @@ package panelcanvas.base
 			function removeAllEventListener(component:UIComponent):void{
 				component.removeEventListener(MouseEvent.MOUSE_DOWN, componentDisplayTop);
 				component.removeEventListener(CloseEvent.CLOSE, closeHandler);
+				component.removeEventListener(FlexEvent.CREATION_COMPLETE, init);
+				component.removeEventListener(MouseEvent.MOUSE_DOWN, resizePanel);
+
 			}
 		}
 
