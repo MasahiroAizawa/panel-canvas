@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:panelbase="panelcanvas.panelbase.*"
+				layout="vertical"
+				minWidth="955" minHeight="600"
+				>
+	<mx:Script>
+		<![CDATA[
+			import app.panel.ChildPanel;
+
+			import mx.controls.Alert;
+
+			private function addChildPanel(event:MouseEvent):void{
+				var panel:ChildPanel = new ChildPanel();
+
+				canvas.addChild(panel);
+			}
+
+			private var existsArray:Array = [];
+			private function debug():void{
+				Alert.show(existsArray.length.toString());
+			}
+		]]>
+	</mx:Script>
+	<mx:HBox >
+		<mx:Button label="addChild" click="addChildPanel(event)" />
+		<mx:Button label="debugButton" click="debug()" />
+	</mx:HBox>
+	<panelbase:PanelCanvas id="canvas" />
+</mx:Application>

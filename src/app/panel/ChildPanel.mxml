@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BasePanel xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:base="panelcanvas.base.*"
+				layout="vertical"
+				width="300" height="300"
+				title="ChildPanel"
+				showCloseButton="true"
+				headerColors="{[0x71C072, 0xCCE0C6]}"
+				>
+	<mx:Label text="panel" />
+</base:BasePanel>
