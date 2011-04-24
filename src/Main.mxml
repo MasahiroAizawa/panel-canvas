@@ -24,7 +24,7 @@
 	</mx:Script>
 	<mx:HBox >
 		<mx:Button label="addChild" click="addChildPanel(event)" />
-		<mx:Button label="debugButton" click="debug()" />
+		<mx:Button label="removeAllChildren" click="{canvas.removeAllChildren()}" />
 	</mx:HBox>
 	<panelbase:PanelCanvas id="canvas" />
 </mx:Application>

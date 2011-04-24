@@ -2,14 +2,128 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   width="100%" height="100%"
 		   backgroundColor="#FFFFFF"
+		   creationComplete="init()" xmlns:parts="panelcanvas.panelbase.parts.*"
 		   >
 	<mx:Script>
 		<![CDATA[
-			import mx.core.UIComponent;
+			import mx.core.EventPriority;
 
+			import panelcanvas.base.BasePanel;
+
+			/**
+			 * initialize this component<br>
+			 */
+			private function init():void{
+				this.addEventListener(MouseEvent.MOUSE_DOWN, saveResizingChild, false, EventPriority.DEFAULT);
+				this.addEventListener(MouseEvent.MOUSE_UP, resizeChild);
+				this.addEventListener(MouseEvent.MOUSE_DOWN, displayShadow, false, EventPriority.DEFAULT - 1);
+				this.addEventListener(MouseEvent.MOUSE_UP, invisibleShadow);
+				this.addEventListener(MouseEvent.MOUSE_MOVE, resizeShadow);
+			}
+
+			/**
+			 * move target panel to front position<br>
+			 * @param target target component
+			 */
 			public function setPanelTop(target:DisplayObject):void{
 				this.setChildIndex(target, this.getChildren().length - 1);
 			}
+
+			/**
+			 * override removeAllChildren()<br>
+			 * this function keep panel shadow<br>
+			 */
+			override public function removeAllChildren():void{
+				var tmpShadow:PanelShadow = shadow;
+				super.removeAllChildren();
+				this.addChild(tmpShadow);
+			}
+
+			private var resizingPanel:BasePanel;
+
+			/**
+			 * for resize complete, target panel saved this canvas<br>
+			 * @param mEvent MouseEvent on target panel
+			 */
+			private function saveResizingChild(mEvent:MouseEvent):void{
+				resizingPanel = mEvent.target  as BasePanel;
+			}
+
+			/**
+			 * do resize saved panel<br>
+			 * for MouseUpEvent happend in outside of target panel<br>
+			 * @mEvent MouseEvent outside of target panel
+			 */
+			private function resizeChild(mEvent:MouseEvent):void{
+				if(mEvent.target == resizingPanel) return;
+				if(resizingPanel){
+					var mousePoint:Point = this.globalToLocal(new Point(mEvent.stageX, mEvent.stageY));
+					var panelSizeX:Number = mousePoint.x - resizingPanel.x;
+					var panelSizeY:Number = mousePoint.y - resizingPanel.y;
+					resizingPanel.dispatchEvent(new MouseEvent(MouseEvent.MOUSE_UP, false, false, panelSizeX, panelSizeY));
+					resizingPanel = null;
+				}
+			}
+
+			/**
+			 * moving target panel has shadow present size panel<br>
+			 * this function changes shadow to can visible<br>
+			 * @param mEvent MouseEvent on target panel's frame
+			 */
+			private function displayShadow(mEvent:MouseEvent):void{
+				if(!resizingPanel) return;
+
+				copyTargetPosition();
+				shadow.visible = true;
+
+				function copyTargetPosition():void{
+					shadow.x = resizingPanel.x;
+					shadow.y = resizingPanel.y;
+					shadow.width = resizingPanel.width;
+					shadow.height = resizingPanel.height;
+					setPanelTop(shadow);
+				}
+			}
+
+			/**
+			 * if shadow is disused, shadow to be invisible<br>
+			 * @param mEvent mouse up
+			 */
+			private function invisibleShadow(mEvent:MouseEvent):void{
+				this.setChildIndex(shadow, 0);
+				shadow.visible = false;
+			}
+
+			/**
+			 * resize shadow<br>
+			 * show new panel size from resize panel x and y to mouse pointer<br>
+			 * @param mEvent MouseEvent
+			 */
+			private function resizeShadow(mEvent:MouseEvent):void{
+				if(resizingPanel){
+					var mousePoint:Point = this.globalToLocal(new Point(mEvent.stageX, mEvent.stageY));
+					var mouseX:Number = mousePoint.x;
+					var mouseY:Number = mousePoint.y;
+
+					if(resizingPanel.x <= mouseX){
+						shadow.x = resizingPanel.x;
+						shadow.width = mouseX - resizingPanel.x;
+					}
+					else{
+						shadow.x = mouseX;
+						shadow.width = resizingPanel.x - mouseX;
+					}
+					if(resizingPanel.y <= mouseY){
+						shadow.y = resizingPanel.y;
+						shadow.height = mouseY - resizingPanel.y;
+					}
+					else{
+						shadow.y = mouseY;
+						shadow.height = resizingPanel.y - mouseY;
+					}
+				}
+			}
 		]]>
 	</mx:Script>
+	<parts:PanelShadow id="shadow" />
 </mx:Canvas>
